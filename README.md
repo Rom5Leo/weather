@@ -9,6 +9,7 @@ A simple Python application to fetch and display current weather data using the 
 ## Requirements
 - Python 3.7 or higher
 - `requests` library
+- `streamlit` library
 
 ## Setup
 
