@@ -2,13 +2,71 @@ import streamlit as st
 from weather.weather import get_weather_data, display_weather_data, display_date_time
 import pandas as pd
 import toml
+from manage_settings import load_settings, save_settings
+
+settings = load_settings()
+
+st.title("Weather App")
+
+# Show current settings
+st.subheader("Current Settings")
+st.write(f"Default Location: {settings['default_location'] or 'Not Set'}")
+st.write(f"Temperature Unit: {'Celsius' if settings['temperature_unit'] == 'metric' else 'Fahrenheit'}")
+st.write(f"Favorite Locations: {', '.join(settings['favorite_locations']) if settings['favorite_locations'] else 'None'}")
+
+# Options to update settings
+new_default_location = st.text_input("Enter a new default location:")
 
 
-st.title("Weather App with Local Date and Time")
+if st.button("Set Default Location"):
+
+    if new_default_location:
+        settings["default_location"] = new_default_location
+        save_settings(settings)  # Save the updated settings
+        st.success(f"Default location updated to {new_default_location}")
+        if "rerun_flag" not in st.session_state:
+            st.session_state["rerun_flag"] = False
+        st.session_state["rerun_flag"] = not st.session_state["rerun_flag"]  # Trigger refresh
+    else:
+        st.warning("Please enter a valid city name.")
+
+new_favorite = st.text_input("Enter a location to add to favorites:")
+if st.button("Add to Favorite Locations"):
+
+    if new_favorite:
+        if new_favorite not in settings["favorite_locations"]:
+            settings["favorite_locations"].append(new_favorite)
+            save_settings(settings)  # Save the updated settings
+            st.success(f"{new_favorite} added to favorites!")
+            if "rerun_flag" not in st.session_state:
+                st.session_state["rerun_flag"] = False
+            st.session_state["rerun_flag"] = not st.session_state["rerun_flag"]  # Trigger refresh
+        else:
+            st.warning(f"{new_favorite} is already in favorites.")
+    else:
+        st.warning("Please enter a valid city name.")
+
+if settings["favorite_locations"]:  # Check if there are favorites to remove
+    city_to_remove = st.selectbox("Select a city to remove from favorites:", settings["favorite_locations"])
+    if st.button("Remove from Favorites"):
+        if city_to_remove in settings["favorite_locations"]:
+            settings["favorite_locations"].remove(city_to_remove)
+            save_settings(settings)
+            st.success(f"{city_to_remove} removed from favorites!")
+            if "rerun_flag" not in st.session_state:
+                st.session_state["rerun_flag"] = False
+            st.session_state["rerun_flag"] = not st.session_state["rerun_flag"]  # Trigger refresh
+else:
+    st.write("No favorite locations to remove.")
 
 city_name = st.text_input("Enter the name of a city:")
 
 if st.button("Get Weather"):
+    if not city_name:
+        city_name = settings["default_location"]
+        if not city_name:
+            st.warning("No default location set. Please enter a city name.")
+
     if city_name:
         # Use Streamlit's st.secrets if deployed; otherwise, load the local secrets file
         try:

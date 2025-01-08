@@ -4,9 +4,9 @@ import requests
 import unittest
 from unittest.mock import patch
 
-def get_weather_data(city_name, api_key):
+def get_weather_data(city_name, api_key, units="metric"):
     base_url = "https://api.openweathermap.org/data/2.5/weather"
-    params = {"q": city_name, "appid": api_key, "units": "metric"}
+    params = {"q": city_name, "appid": api_key, "units": units}
     response = requests.get(base_url, params=params)
 
     if response.status_code != 200:

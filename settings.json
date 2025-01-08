@@ -1,0 +1,9 @@
+{
+    "default_location": "Kfar Saba",
+    "temperature_unit": "metric",
+    "favorite_locations": [
+        "Tel Aviv",
+        "Tucuman",
+        "London"
+    ]
+}
