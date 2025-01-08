@@ -1,6 +1,7 @@
 import streamlit as st
 from weather.weather import get_weather_data
 import pandas as pd
+import toml
 
 
 st.title("Weather App")
@@ -9,10 +10,17 @@ city_name = st.text_input("Enter the name of a city:")
 
 if st.button("Get Weather"):
     if city_name:
-        api_key = "792de6e244a5c651c61bba58e715aaf8"
+        # Use Streamlit's st.secrets if deployed; otherwise, load the local secrets file
+        try:
+            API_KEY = st.secrets["OPENWEATHERMAP_API_KEY"]
+        except Exception:
+            local_secrets = toml.load(".streamlit/secrets.toml")
+            API_KEY = local_secrets["OPENWEATHERMAP_API_KEY"]
+
+#         st.write(f"API Key: {API_KEY}")  # For testing purposes only; remove this in production
         try:
             # Fetch weather data
-            weather_data = get_weather_data(city_name, api_key)
+            weather_data = get_weather_data(city_name, API_KEY)
 
             # Display weather information
             st.subheader(f"Weather in {weather_data['name']}:")
