@@ -3,6 +3,8 @@ from weather.weather import get_weather_data, display_weather_data, display_date
 import pandas as pd
 import toml
 from manage_settings import load_settings, save_settings
+from streamlit_folium import folium_static
+import folium
 
 settings = load_settings()
 
@@ -102,6 +104,21 @@ if st.button("Get Weather"):
                 ]
             })
             st.table(weather_df)
+
+            # Display weather icon
+            icon_code = weather_data["weather"][0]["icon"]
+            icon_url = f"http://openweathermap.org/img/wn/{icon_code}@2x.png"
+            st.image(icon_url, caption="Current Weather Icon", use_container_width=100)
+
+            # Show map of the location
+            latitude = weather_data["coord"]["lat"]
+            longitude = weather_data["coord"]["lon"]
+            m = folium.Map(location=[latitude, longitude], zoom_start=10)
+            folium.Marker(
+                [latitude, longitude], popup=f"{city_name} ({latitude}, {longitude})"
+            ).add_to(m)
+            st.subheader("Map of the Location:")
+            folium_static(m)
 
         except Exception as e:
             st.error(f"Error: {e}")
