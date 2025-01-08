@@ -1,10 +1,10 @@
 import streamlit as st
-from weather.weather import get_weather_data
+from weather.weather import get_weather_data, display_weather_data, display_date_time
 import pandas as pd
 import toml
 
 
-st.title("Weather App")
+st.title("Weather App with Local Date and Time")
 
 city_name = st.text_input("Enter the name of a city:")
 
@@ -27,14 +27,25 @@ if st.button("Get Weather"):
             st.write(f"Temperature: {weather_data['main']['temp']} °C")
             st.write(f"Humidity: {weather_data['main']['humidity']}%")
             st.write(f"Condition: {weather_data['weather'][0]['description'].capitalize()}")
+
+            local_time = display_date_time(weather_data["timezone"])  # Get the local time
+            timezone_offset_hours = weather_data["timezone"] // 3600  # Convert seconds to hours
+            timezone_formatted = f"UTC{'+' if timezone_offset_hours >= 0 else ''}{timezone_offset_hours}"  # Format as UTC±X
+
+            # Display weather data in a table
+            weather_df = pd.DataFrame({
+                "Metric": ["Temperature (°C)", "Humidity (%)", "Condition", "Time Zone", "Local Time"],
+                "Value": [
+                weather_data["main"]["temp"],
+                weather_data["main"]["humidity"],
+                weather_data["weather"][0]["description"].capitalize(),
+                timezone_formatted,
+                local_time
+                ]
+            })
+            st.table(weather_df)
+
         except Exception as e:
             st.error(f"Error: {e}")
     else:
         st.warning("Please enter a city name.")
-
-    if city_name:
-        weather_df = pd.DataFrame({
-            "Metric": ["Temperature (°C)", "Humidity (%)", "Condition"],
-            "Value": [weather_data["main"]["temp"], weather_data["main"]["humidity"], weather_data["weather"][0]["description"].capitalize()]
-        })
-        st.table(weather_df)

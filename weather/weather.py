@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+import pytz
 import requests
 import unittest
 from unittest.mock import patch
@@ -20,10 +22,20 @@ def display_weather_data(weather_data):
     temp = weather_data["main"]["temp"]
     humidity = weather_data["main"]["humidity"]
     condition = weather_data["weather"][0]["description"]
-    print(f"Weather in {city}:")
-    print(f"  Temperature: {temp}°C")
-    print(f"  Humidity: {humidity}%")
-    print(f"  Condition: {condition.capitalize()}")
+
+    # print(f"Weather in {city}:")
+    # print(f"  Temperature: {temp}°C")
+    # print(f"  Humidity: {humidity}%")
+    # print(f"  Condition: {condition.capitalize()}")
+
+def display_date_time(location_timezone_offset):
+    utc_time = datetime.utcnow()
+
+    location_time = utc_time + timedelta(seconds=location_timezone_offset)
+    formatted_location_time = location_time.strftime("%A, %B %d, %Y, %I:%M %p")
+
+    return formatted_location_time
+
 
 @patch("weather.weather.requests.get")
 def test_get_weather_data_failure(self, mock_get):

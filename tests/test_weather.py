@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from weather.weather import get_weather_data
+from weather.weather import get_weather_data, display_weather_data, display_date_time
 
 class TestWeather(unittest.TestCase):
 
@@ -22,6 +22,12 @@ class TestWeather(unittest.TestCase):
         self.assertEqual(response["name"], "London")
         self.assertEqual(response["main"]["temp"], 15)
         self.assertEqual(response["weather"][0]["description"], "clear sky")
+
+    def test_display_date_time(self):
+        # Test timezone offset conversion
+        offset = 3600  # 1-hour offset
+        local_time = display_date_time(offset)
+        self.assertIn("2025", local_time)  # Assuming test runs in 2025
 
     @patch("weather.weather.requests.get")
     def test_get_weather_data_failure(self, mock_get):
